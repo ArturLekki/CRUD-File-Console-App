@@ -15,6 +15,7 @@
                 "Wyświetl pytania z bazy danych (plik TXT)",
                 "Dopisz nowo dodane pytania z tymczasowej kolekcji do bazy danych (plik TXT)",
                 "Usuń bazę danych (plik TXT)",
+                "Usuń pojedynczy rekord (z pliku TXT)",
                 "Edycja bazy danych (pliku TXT)",
                 "Losowanie pytań",
                 "Zakończ program"
@@ -53,12 +54,15 @@
                         DeleteTxtFile();
                         break;
                     case 5:
-                        EditTxtFile();
+                        DeleteFromTxtById();
                         break;
                     case 6:
+                        EditTxtFile();
+                        break;
+                    case 7:
                         QuestionsLoterry(questionsLoterry);
                         break;
-                    case 7:                      
+                    case 8:                      
                         if(questionsTemporary.Count != 0)
                         {
                             Console.ForegroundColor = ConsoleColor.DarkRed;
@@ -639,5 +643,132 @@
             Console.Clear();
         }
 
+        // Usuń pojedynczy rekord z pliku TXT
+        static void DeleteFromTxtById()
+        {
+            if(File.Exists("questions.txt"))
+            {
+                // Pobierz pytania z pliku txt i dodaj do słownika
+                Dictionary<string, string> questions = new Dictionary<string, string>();
+                StreamReader sr = new StreamReader("questions.txt");
+                string line = "";
+                string[] lineSplitted;
+
+                do
+                {
+                    line = sr.ReadLine();
+                    lineSplitted = line.Split(';');
+                    questions.Add(lineSplitted[0], lineSplitted[1]);
+                } 
+                while(!sr.EndOfStream);
+
+                sr.Close();
+                sr.Dispose();
+
+                // Wyświetl słownik
+                int id = 0;
+                foreach (KeyValuePair<string, string> question in questions)
+                {
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.WriteLine(id + ": " + question.Key);
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    Console.WriteLine(question.Value);
+                    Console.WriteLine("------------------------------------------------------------------------------");
+                    id++;
+                }
+
+
+                
+                bool isParsed = false;
+                int inputParsed;
+                do
+                {
+                    // Pobierz od usera numer id pytania do usuniecia i parsuj go na int
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.Write("Podaj numer id pytania do usunięcia: ");
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    string input = Console.ReadLine();
+                    
+                    if (int.TryParse(input, out inputParsed))
+                    {
+                        inputParsed = int.Parse(input);
+
+                        if (inputParsed < 0 || inputParsed > questions.Count-1)
+                        {
+                            Console.WriteLine($"ID o numerze {inputParsed} nie istnieje.");
+                        }
+                        else
+                        {
+                            inputParsed = int.Parse(input);
+                            isParsed = true;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Błędna wartość.");
+                    }
+                }
+                while (isParsed == false);
+
+
+                // pobierz ze słownika rekord o podanym ID
+                id = 0;
+                string questionToDelete = "";
+
+                foreach (KeyValuePair<string, string> question in questions)
+                {
+                    if (inputParsed == id)
+                    {
+                        questionToDelete = question.Key;
+                    }
+                    id++;
+                }
+
+                // usuń ze słownika rekord
+                bool deleted = questions.Remove(questionToDelete);
+
+
+                // Utwórz nowy plik TXT z zaktualizowanymi danymi
+                if (deleted == false)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                    Console.WriteLine("Nie udało się usunać rekordu:");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine(questionToDelete);
+                }
+                else
+                {
+                    StreamWriter sw = new StreamWriter("questions.txt");
+                    string lineCombined = "";
+
+                    foreach(KeyValuePair<string, string> question in questions)
+                    {
+                        lineCombined = question.Key + ";" + question.Value;
+                        sw.WriteLine(lineCombined);
+                    }
+
+                    sw.Close();
+                    sw.Dispose();
+
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.WriteLine("Rekord pomyślnie usunięty. Baza danych zaktualizowana.");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+            }
+            else
+            {
+                Console.WriteLine("Baza danych (plik TXT) nie istnieje.");
+            }
+
+
+
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WriteLine("ENTER-->powrót do menu");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.ReadKey();
+            Console.Clear();
+        }
     }
 }
