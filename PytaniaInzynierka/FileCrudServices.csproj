@@ -6,12 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <ApplicationIcon>ConsoleAppIcon.ico</ApplicationIcon>
+    <ApplicationIcon>File.ico</ApplicationIcon>
     <NeutralLanguage>aa</NeutralLanguage>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="ConsoleAppIcon.ico" />
+    <Content Include="File.ico" />
   </ItemGroup>
 
 </Project>
