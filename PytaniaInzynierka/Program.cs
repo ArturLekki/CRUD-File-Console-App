@@ -10,14 +10,15 @@
             // Tworzenie elementów głównego menu
             List<string> menu = new List<string>()
             {
-                "Dodaj nowe pytanie do tymczasowej kolekcji",
-                "Wyświetl pytania z tymczasowej kolekcji",
-                "Wyświetl pytania z bazy danych (plik TXT)",
-                "Dopisz nowo dodane pytania z tymczasowej kolekcji do bazy danych (plik TXT)",
-                "Usuń bazę danych (plik TXT)",
-                "Usuń pojedynczy rekord (z pliku TXT)",
-                "Edycja bazy danych (pliku TXT)",
-                "Losowanie pytań",
+                "Dodaj nowe pytanie do tymczasowej kolekcji (lokalne działanie)",
+                "Wyświetl pytania z tymczasowej kolekcji (lokalne działanie)",
+                "Wyświetl pytania z bazy danych (plik TXT lokalny)",
+                "Dopisz nowo dodane pytania z tymczasowej kolekcji do bazy danych (plik TXT lokalny)",
+                "Usuń bazę danych (plik TXT lokalny)",
+                "Usuń pojedynczy rekord (z pliku TXT lokalnie)",
+                "Edycja bazy danych (pliku TXT lokalnego)",
+                "Losowanie pytań (z pliku TXT lokalnego)",
+                "Synchronizacja bazy danych (pliku TXT lokalnego z dyskiem OneDrive)",
                 "Zakończ program"
             };
 
@@ -62,7 +63,10 @@
                     case 7:
                         QuestionsLoterry(questionsLoterry);
                         break;
-                    case 8:                      
+                    case 8:
+                        SyncTxtFile();
+                        break;
+                    case 9:                      
                         if(questionsTemporary.Count != 0)
                         {
                             Console.ForegroundColor = ConsoleColor.DarkRed;
@@ -92,6 +96,328 @@
                 }
             }
             while(programRun == true);
+        }
+
+        // Synchronizacja pliku TXT
+        static void SyncTxtFile()
+        {
+            string filePathLocal = "questions.txt";
+            string filePathPc = "C:\\Users\\alekk\\OneDrive\\Dokumenty\\Database_Pytania_Inzynierka\\questions.txt";
+            string filePathLaptop = "C:\\Users\\Dell\\OneDrive\\Dokumenty\\Database_Pytania_Inzynierka\\questions.txt";
+
+            if (File.Exists(filePathPc))
+            {
+                Console.WriteLine("Wykryta maszyna: PC");
+                StreamReader sr = new StreamReader(filePathPc);
+                Dictionary<string,string> questionsPc = new Dictionary<string,string>();
+                string line = "";
+                string[] lineSplitted;
+                int charactersCount = sr.ReadToEnd().Length;
+
+                if(charactersCount <= 0)
+                {
+                    Console.WriteLine("Plik istnieje na dysku OneDrive, ale jest pusty.");
+                    sr.Close();
+                    sr.Dispose();
+
+
+                    if (File.Exists(filePathLocal))
+                    {
+                        Console.WriteLine("Baza danych(plik TXT) istnieje lokalnie. Zapisuję kopię do dysku OneDrive.");
+                        StreamReader srLocal = new StreamReader(filePathLocal);
+                        Dictionary<string, string> questionsLocal = new Dictionary<string, string>();
+                        string lineLocal = "";
+                        string[] lineLocalSplited;
+
+                        do
+                        {
+                            lineLocal = srLocal.ReadLine();
+                            lineLocalSplited = lineLocal.Split(';');
+                            questionsLocal.Add(lineLocalSplited[0], lineLocalSplited[1]);
+                        }
+                        while (!srLocal.EndOfStream);
+
+                        srLocal.Close();
+                        srLocal.Dispose();
+
+                        Console.WriteLine("Aktualizuję dysk OneDrive.");
+
+                        StreamWriter sw = new StreamWriter(filePathPc, false);
+
+                        foreach (KeyValuePair<string, string> question in questionsLocal)
+                        {
+                            sw.WriteLine(question.Key + ";" + question.Value);
+                        }
+
+                        sw.Close();
+                        sw.Dispose();
+
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        Console.WriteLine("Plik TXT na dysku OneDrive został zaktualizowany.");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.ReadKey();
+                        Console.Clear();
+                    }
+                    else
+                    {
+                        Console.WriteLine("Nie można zaktualizować dysku OneDrive. Brak bazy danych(pliku TXT) lokalnie.");
+                    }
+                }
+                else
+                {
+                    do
+                    {
+                        line = sr.ReadLine();
+                        lineSplitted = line.Split(';');
+                        questionsPc.Add(lineSplitted[0], lineSplitted[1]);
+                    }
+                    while (!sr.EndOfStream);
+
+                    sr.Close();
+                    sr.Dispose();
+
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.WriteLine("Plik został pobrany z dysku OneDrive.");
+                    Console.WriteLine("Sprawdzam czy plik TXT istnieje lokalnie.");
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    Console.ForegroundColor = ConsoleColor.DarkGreen;
+                    Console.WriteLine("ENTER-->kontynuuj");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.ReadKey();
+                    Console.Clear();
+
+                    if (File.Exists(filePathLocal))
+                    {
+                        Console.WriteLine("Baza danych(plik TXT) istnieje lokalnie. Sprawdzam aktualność danych.");
+                        StreamReader srLocal = new StreamReader(filePathLocal);
+                        Dictionary<string, string> questionsLocal = new Dictionary<string, string>();
+                        string lineLocal = "";
+                        string[] lineLocalSplited;
+
+                        do
+                        {
+                            lineLocal = srLocal.ReadLine();
+                            lineLocalSplited = lineLocal.Split(';');
+                            questionsLocal.Add(lineLocalSplited[0], lineLocalSplited[1]);
+                        }
+                        while (!srLocal.EndOfStream);
+
+                        srLocal.Close();
+                        srLocal.Dispose();
+
+                        int questionsOneDriveCount = questionsPc.Count();
+                        int questionsLocalCount = questionsLocal.Count();
+
+                        if (questionsOneDriveCount > questionsLocalCount)
+                        {
+                            Console.WriteLine($"Ilość pytań w lokalnej bazie({questionsLocalCount}) jest mniejsza niż na dysku OneDrive({questionsOneDriveCount})");
+                            Console.WriteLine("Aktualizuję lokalny pik TXT.");
+
+                            StreamWriter sw = new StreamWriter(filePathLocal, false);
+
+                            foreach (KeyValuePair<string, string> question in questionsPc)
+                            {
+                                sw.WriteLine(question.Key + ";" + question.Value);
+                            }
+
+                            sw.Close();
+                            sw.Dispose();
+
+                            Console.ForegroundColor = ConsoleColor.Magenta;
+                            Console.WriteLine("Plik TXT lokalny został zaktualizowany.");
+                            Console.ForegroundColor = ConsoleColor.White;
+                            Console.ReadKey();
+                            Console.Clear();
+                        }
+                        else if (questionsOneDriveCount < questionsLocalCount)
+                        {
+                            Console.WriteLine($"Ilość pytań w lokalnej bazie({questionsLocalCount}) jest większa niż na dysku OneDrive({questionsOneDriveCount})");
+                            Console.WriteLine("Aktualizuję dysk OneDrive.");
+
+                            StreamWriter sw = new StreamWriter(filePathPc, false);
+
+                            foreach (KeyValuePair<string, string> question in questionsLocal)
+                            {
+                                sw.WriteLine(question.Key + ";" + question.Value);
+                            }
+
+                            sw.Close();
+                            sw.Dispose();
+
+                            Console.ForegroundColor = ConsoleColor.Magenta;
+                            Console.WriteLine("Plik TXT na dysku OneDrive został zaktualizowany.");
+                            Console.ForegroundColor = ConsoleColor.White;
+                            Console.ReadKey();
+                            Console.Clear();
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Ilość pytań w lokalnej bazie({questionsLocalCount}) jest równa ilośći pytań na dysku OneDrive({questionsOneDriveCount})");
+
+                            Console.ForegroundColor = ConsoleColor.DarkGreen;
+                            Console.WriteLine("Wszystko jest aktualne.");
+                            Console.ForegroundColor = ConsoleColor.White;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Baza danych(plik TXT) nie istnieje lokalnie.");
+                        Console.WriteLine("Tworzę lokalną bazę danych na podstawie pliku z dysku OneDrive.");
+
+                        StreamWriter sw = new StreamWriter(filePathLocal, false);
+
+                        foreach (KeyValuePair<string, string> question in questionsPc)
+                        {
+                            sw.WriteLine(question.Key + ";" + question.Value);
+                        }
+
+                        sw.Close();
+                        sw.Dispose();
+
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        Console.WriteLine("Plik TXT lokalny został utworzony.");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.ReadKey();
+                        Console.Clear();
+                    }
+                } 
+            }
+            else if(File.Exists(filePathLaptop))
+            {
+                Console.WriteLine("Wykryta maszyna: LAPTOP");
+                StreamReader sr = new StreamReader(filePathLaptop);
+                Dictionary<string, string> questionsLaptop = new Dictionary<string, string>();
+                string line = "";
+                string[] lineSplitted;
+
+                do
+                {
+                    line = sr.ReadLine();
+                    lineSplitted = line.Split(';');
+                    questionsLaptop.Add(lineSplitted[0], lineSplitted[1]);
+                }
+                while (!sr.EndOfStream);
+
+                sr.Close();
+                sr.Dispose();
+
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.WriteLine("Plik został pobrany z dysku OneDrive.");
+                Console.WriteLine("Sprawdzam czy plik TXT istnieje lokalnie.");
+                Console.ForegroundColor = ConsoleColor.White;
+
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.WriteLine("ENTER-->kontynuuj");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.ReadKey();
+                Console.Clear();
+
+                if (File.Exists(filePathLocal))
+                {
+                    Console.WriteLine("Baza danych(plik TXT) istnieje lokalnie. Sprawdzam aktualność danych.");
+                    StreamReader srLocal = new StreamReader(filePathLocal);
+                    Dictionary<string, string> questionsLocal = new Dictionary<string, string>();
+                    string lineLocal = "";
+                    string[] lineLocalSplited;
+
+                    do
+                    {
+                        lineLocal = srLocal.ReadLine();
+                        lineLocalSplited = lineLocal.Split(';');
+                        questionsLocal.Add(lineLocalSplited[0], lineLocalSplited[1]);
+                    }
+                    while (!srLocal.EndOfStream);
+
+                    srLocal.Close();
+                    srLocal.Dispose();
+
+                    int questionsOneDriveCount = questionsLaptop.Count();
+                    int questionsLocalCount = questionsLocal.Count();
+
+                    if (questionsOneDriveCount > questionsLocalCount)
+                    {
+                        Console.WriteLine($"Ilość pytań w lokalnej bazie({questionsLocalCount}) jest mniejsza niż na dysku OneDrive({questionsOneDriveCount})");
+                        Console.WriteLine("Aktualizuję lokalny pik TXT.");
+
+                        StreamWriter sw = new StreamWriter(filePathLocal, false);
+
+                        foreach (KeyValuePair<string, string> question in questionsLaptop)
+                        {
+                            sw.WriteLine(question.Key + ";" + question.Value);
+                        }
+
+                        sw.Close();
+                        sw.Dispose();
+
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        Console.WriteLine("Plik TXT lokalny został zaktualizowany.");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.ReadKey();
+                        Console.Clear();
+                    }
+                    else if (questionsOneDriveCount < questionsLocalCount)
+                    {
+                        Console.WriteLine($"Ilość pytań w lokalnej bazie({questionsLocalCount}) jest większa niż na dysku OneDrive({questionsOneDriveCount})");
+                        Console.WriteLine("Aktualizuję dysk OneDrive.");
+
+                        StreamWriter sw = new StreamWriter(filePathLaptop, false);
+
+                        foreach (KeyValuePair<string, string> question in questionsLocal)
+                        {
+                            sw.WriteLine(question.Key + ";" + question.Value);
+                        }
+
+                        sw.Close();
+                        sw.Dispose();
+
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        Console.WriteLine("Plik TXT na dysku OneDrive został zaktualizowany.");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.ReadKey();
+                        Console.Clear();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Ilość pytań w lokalnej bazie({questionsLocalCount}) jest równa ilośći pytań na dysku OneDrive({questionsOneDriveCount})");
+
+                        Console.ForegroundColor = ConsoleColor.DarkGreen;
+                        Console.WriteLine("Wszystko jest aktualne.");
+                        Console.ForegroundColor = ConsoleColor.White;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Baza danych(plik TXT) nie istnieje lokalnie.");
+                    Console.WriteLine("Tworzę lokalną bazę danych na podstawie pliku z dysku OneDrive.");
+
+                    StreamWriter sw = new StreamWriter(filePathLocal, false);
+
+                    foreach (KeyValuePair<string, string> question in questionsLaptop)
+                    {
+                        sw.WriteLine(question.Key + ";" + question.Value);
+                    }
+
+                    sw.Close();
+                    sw.Dispose();
+
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.WriteLine("Plik TXT lokalny został utworzony.");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.ReadKey();
+                    Console.Clear();
+                }
+            }
+            else
+            {
+                Console.WriteLine("Nie znaleziono bazy danych(pliku TXT) lub dysk OneDrive jest niedostępny.");
+            }
+
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WriteLine("ENTER-->powrót do menu");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.ReadKey();
+            Console.Clear();
         }
 
         // Losowanie pytań
