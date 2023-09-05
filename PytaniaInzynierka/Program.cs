@@ -19,6 +19,7 @@
                 "Edycja bazy danych (pliku TXT lokalnego)",
                 "Losowanie pytań (z pliku TXT lokalnego)",
                 "Synchronizacja bazy danych (pliku TXT lokalnego z dyskiem OneDrive)",
+                "Wykonaj kopię zapasową bazy danych (pliku TXT lokalnie)",
                 "Zakończ program"
             };
 
@@ -66,7 +67,10 @@
                     case 8:
                         SyncTxtFile();
                         break;
-                    case 9:                      
+                    case 9:
+                        backupTxtFile();
+                        break;
+                    case 10:                      
                         if(questionsTemporary.Count != 0)
                         {
                             Console.ForegroundColor = ConsoleColor.DarkRed;
@@ -96,6 +100,61 @@
                 }
             }
             while(programRun == true);
+        }
+
+        // Kopia zapasowa pliku TXT
+        static void backupTxtFile()
+        {
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.WriteLine("Czy wykonac kopię zapasową bazy danych (pliku TXT)? y/n");
+            Console.ForegroundColor = ConsoleColor.White;
+
+            string input = Console.ReadLine();
+
+            if(input == "y")
+            {
+                string path = "questions.txt";
+
+                if (File.Exists(path))
+                {
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.WriteLine("Wykonuje kopię zapasową lokalnie");
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    string newPath = "questions_backup.txt";
+                    File.Copy(path, newPath, true);
+
+                    Console.ForegroundColor = ConsoleColor.DarkGreen;
+                    Console.WriteLine("ENTER-->dalej");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.ReadKey();
+                    Console.Clear();
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.WriteLine("Nie można wykonać kopii zapasowej. Baza danych(plik TXT nie istnieje lokalnie).");
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    Console.ForegroundColor = ConsoleColor.DarkGreen;
+                    Console.WriteLine("ENTER-->dalej");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.ReadKey();
+                    Console.Clear();
+                }
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.WriteLine("Nie wykonuję kopii zapasowej.");
+                Console.ForegroundColor = ConsoleColor.White;
+
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.WriteLine("ENTER-->dalej");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.ReadKey();
+                Console.Clear();
+            }
         }
 
         // Synchronizacja pliku TXT
@@ -513,8 +572,8 @@
         // Ustawienia konsoli
         static void ConsoleSettings()
         {
-            string version = "1.0.0.1";
-            Console.Title = "FileCrudServices" + " [v: " + version + "]";
+            var version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version;
+            Console.Title = "FileCrudServices" + $" [v: {version.Major}.{version.Minor}.{version.Build}]";
         }
 
         // Menu
