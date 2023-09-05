@@ -514,7 +514,7 @@
         static void ConsoleSettings()
         {
             string version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            Console.Title = "Aplikacja Pytania Inżynierskie" + " [version " + version + "]";
+            Console.Title = "FileCrudServices" + " [version " + version + "]";
         }
 
         // Menu
