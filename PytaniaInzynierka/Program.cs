@@ -277,13 +277,17 @@
         static void SyncTxtFile()
         {
             string filePathLocal = "questions.txt";
-            string filePathPc = "C:\\Users\\alekk\\OneDrive\\Dokumenty\\Database_Pytania_Inzynierka\\questions.txt";
-            string filePathLaptop = "C:\\Users\\Dell\\OneDrive\\Dokumenty\\Database_Pytania_Inzynierka\\questions.txt";
+            string filePathOneDrivePc = "C:\\Users\\alekk\\OneDrive\\Dokumenty\\Database_Pytania_Inzynierka\\questions.txt";
+            string filePathOneDriveLaptop = "C:\\Users\\Dell\\OneDrive\\Dokumenty\\Database_Pytania_Inzynierka\\questions.txt";
 
-            if (File.Exists(filePathPc))
+            string machinePc = "C:\\Users\\alekk";
+            string machineLaptop = "C:\\Users\\Dell";
+
+            
+            if (File.Exists(filePathOneDrivePc))
             {
                 Console.WriteLine("Wykryta maszyna: PC");
-                FileInfo fi = new FileInfo(filePathPc);
+                FileInfo fi = new FileInfo(filePathOneDrivePc);
                 long fileSize = fi.Length;
 
                 if(fileSize <= 0)
@@ -311,7 +315,7 @@
 
                         Console.WriteLine("Aktualizuję dysk OneDrive. Zapisywanie danych z pliku lokalnego.");
 
-                        StreamWriter sw = new StreamWriter(filePathPc, false);
+                        StreamWriter sw = new StreamWriter(filePathOneDrivePc, false);
 
                         foreach (KeyValuePair<string, string> question in questionsLocal)
                         {
@@ -338,7 +342,7 @@
                     Console.WriteLine($"Plik na dysku OneDrive ma pojemność {fileSize} bajtów.");
                     Console.ForegroundColor = ConsoleColor.White;
 
-                    StreamReader sr = new StreamReader(filePathPc);
+                    StreamReader sr = new StreamReader(filePathOneDrivePc);
                     Dictionary<string, string> questionsPc = new Dictionary<string, string>();
                     string line = "";
                     string[] lineSplitted;
@@ -412,7 +416,7 @@
                             Console.WriteLine($"Ilość pytań w lokalnej bazie({questionsLocalCount}) jest większa niż na dysku OneDrive({questionsOneDriveCount})");
                             Console.WriteLine("Aktualizuję dysk OneDrive.");
 
-                            StreamWriter sw = new StreamWriter(filePathPc, false);
+                            StreamWriter sw = new StreamWriter(filePathOneDrivePc, false);
 
                             foreach (KeyValuePair<string, string> question in questionsLocal)
                             {
@@ -460,10 +464,67 @@
                     }
                 } 
             }
-            else if(File.Exists(filePathLaptop))
+            else if(!File.Exists(filePathOneDrivePc) && Directory.Exists(machinePc))
+            {
+                Console.WriteLine("Wykryta maszyna: PC");
+
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.WriteLine("Plik TXT na dysku OneDrive nie istnieje.");
+                Console.WriteLine("Sprawdzam czy istnieje lokalnie.");
+                Console.ForegroundColor = ConsoleColor.White;
+
+                if (File.Exists(filePathLocal))
+                {
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.WriteLine("Znaleziono lokalny plik TXT.");
+                    Console.WriteLine("Pobieram dane z lokalnego pliku.");
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    Dictionary<string, string> questionsLocal = new Dictionary<string, string>();
+                    StreamReader sr = new StreamReader(filePathLocal);
+                    string lineLocal = "";
+                    string[] lineLocalSplited;
+
+                    do
+                    {
+                        lineLocal = sr.ReadLine();
+                        lineLocalSplited = lineLocal.Split(';');
+                        questionsLocal.Add(lineLocalSplited[0], lineLocalSplited[1]);
+                    }
+                    while (!sr.EndOfStream);
+
+                    sr.Close();
+                    sr.Dispose();
+
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.WriteLine("Zapisuję kopię danych na dysku OneDrive.");
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    StreamWriter sw = new StreamWriter(filePathOneDrivePc, false);
+
+                    foreach (KeyValuePair<string, string> question in questionsLocal)
+                    {
+                        sw.WriteLine(question.Key + ";" + question.Value);
+                    }
+
+                    sw.Close();
+                    sw.Dispose();
+
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.WriteLine("Zapis kopii pliku lokalnego na dysku OneDrive zakończony.");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.WriteLine("Nie można utworzyć kopii na dysku OneDrive. Lokalny plik TXT nie istnieje.");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+            }
+            else if(File.Exists(filePathOneDriveLaptop))
             {
                 Console.WriteLine("Wykryta maszyna: LAPTOP");
-                FileInfo fi = new FileInfo(filePathLaptop);
+                FileInfo fi = new FileInfo(filePathOneDriveLaptop);
                 long fileSize = fi.Length;
 
                 if (fileSize <= 0)
@@ -491,7 +552,7 @@
 
                         Console.WriteLine("Aktualizuję dysk OneDrive. Zapisywanie danych z pliku lokalnego.");
 
-                        StreamWriter sw = new StreamWriter(filePathLaptop, false);
+                        StreamWriter sw = new StreamWriter(filePathOneDriveLaptop, false);
 
                         foreach (KeyValuePair<string, string> question in questionsLocal)
                         {
@@ -518,7 +579,7 @@
                     Console.WriteLine($"Plik na dysku OneDrive ma pojemność {fileSize} bajtów.");
                     Console.ForegroundColor = ConsoleColor.White;
 
-                    StreamReader sr = new StreamReader(filePathLaptop);
+                    StreamReader sr = new StreamReader(filePathOneDriveLaptop);
                     Dictionary<string, string> questionsLaptop = new Dictionary<string, string>();
                     string line = "";
                     string[] lineSplitted;
@@ -592,7 +653,7 @@
                             Console.WriteLine($"Ilość pytań w lokalnej bazie({questionsLocalCount}) jest większa niż na dysku OneDrive({questionsOneDriveCount})");
                             Console.WriteLine("Aktualizuję dysk OneDrive.");
 
-                            StreamWriter sw = new StreamWriter(filePathLaptop, false);
+                            StreamWriter sw = new StreamWriter(filePathOneDriveLaptop, false);
 
                             foreach (KeyValuePair<string, string> question in questionsLocal)
                             {
@@ -640,9 +701,66 @@
                     }
                 }
             }
+            else if(!File.Exists(filePathOneDriveLaptop) && Directory.Exists(machineLaptop))
+            {
+                Console.WriteLine("Wykryta maszyna: LAPTOP");
+                
+                Console.ForegroundColor= ConsoleColor.Magenta;
+                Console.WriteLine("Plik TXT na dysku OneDrive nie istnieje.");
+                Console.WriteLine("Sprawdzam czy istnieje lokalnie.");
+                Console.ForegroundColor = ConsoleColor.White;
+
+                if(File.Exists(filePathLocal)) 
+                {
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.WriteLine("Znaleziono lokalny plik TXT.");
+                    Console.WriteLine("Pobieram dane z lokalnego pliku.");
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    Dictionary<string, string> questionsLocal = new Dictionary<string, string>();
+                    StreamReader sr = new StreamReader(filePathLocal);
+                    string lineLocal = "";
+                    string[] lineLocalSplited;
+
+                    do
+                    {
+                        lineLocal = sr.ReadLine();
+                        lineLocalSplited = lineLocal.Split(';');
+                        questionsLocal.Add(lineLocalSplited[0], lineLocalSplited[1]);
+                    }
+                    while(!sr.EndOfStream);
+
+                    sr.Close();
+                    sr.Dispose();
+
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.WriteLine("Zapisuję kopię danych na dysku OneDrive.");
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    StreamWriter sw = new StreamWriter(filePathOneDriveLaptop, false);
+
+                    foreach(KeyValuePair<string, string> question in questionsLocal)
+                    {
+                        sw.WriteLine(question.Key + ";" + question.Value);
+                    }
+
+                    sw.Close();
+                    sw.Dispose();
+
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.WriteLine("Zapis kopii pliku lokalnego na dysku OneDrive zakończony.");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.WriteLine("Nie można utworzyć kopii na dysku OneDrive. Lokalny plik TXT nie istnieje.");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+            }
             else
             {
-                Console.WriteLine("Nie znaleziono bazy danych(pliku TXT) na dysku OnDrive lub dysk OneDrive jest niedostępny.");
+                Console.WriteLine("Nie można uzyskac dostępu do dysku OnDrive.");
             }
 
             Console.ForegroundColor = ConsoleColor.DarkGreen;
