@@ -20,6 +20,7 @@
                 "Losowanie pytań (z pliku TXT lokalnego)",
                 "Synchronizacja bazy danych (pliku TXT lokalnego z dyskiem OneDrive)",
                 "Wykonaj kopię zapasową bazy danych (pliku TXT lokalnie)",
+                "Przywróć dane z kopii zapasowej (plik zapasowy lokalny)",
                 "Zakończ program"
             };
 
@@ -70,7 +71,10 @@
                     case 9:
                         backupTxtFile();
                         break;
-                    case 10:                      
+                    case 10:
+                        RestoreFromBackup();
+                        break;
+                    case 11:                      
                         if(questionsTemporary.Count != 0)
                         {
                             Console.ForegroundColor = ConsoleColor.DarkRed;
@@ -100,6 +104,76 @@
                 }
             }
             while(programRun == true);
+        }
+
+        // Przywróć dane z kopii zapasowej
+        static void RestoreFromBackup()
+        {
+            string localFile = "questions.txt";
+            string localBackupFile = "questions_backup.txt";
+
+            if(File.Exists(localBackupFile))
+            {
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.WriteLine("Przywrócić dane z kopii zapasowej? y/n");
+                Console.ForegroundColor = ConsoleColor.White;
+
+                string input = Console.ReadLine();
+
+                if (input == "y")
+                {
+                    Dictionary<string, string> questionsFromBackup = new Dictionary<string, string>();
+                    string lineBackup = "";
+                    string[] lineBackupSplited;
+
+                    StreamReader sr = new StreamReader(localBackupFile);
+
+                    Console.WriteLine("Rozpoczynam pobieranie danych z kopii zapasowej.");
+
+                    do
+                    {
+                        lineBackup = sr.ReadLine();
+                        lineBackupSplited = lineBackup.Split(';');
+                        questionsFromBackup.Add(lineBackupSplited[0], lineBackupSplited[1]);
+                    }
+                    while (!sr.EndOfStream);
+
+                    sr.Close();
+                    sr.Dispose();
+
+
+                    Console.WriteLine("Zapisuję dane z kopii zapasowej do lokalnego pliku.");
+                    StreamWriter sw = new StreamWriter(localFile, false);
+
+                    foreach(KeyValuePair<string, string> question in questionsFromBackup)
+                    {
+                        sw.WriteLine(question.Key + ";" + question.Value);
+                    }
+
+                    sw.Close();
+                    sw.Dispose();
+
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.WriteLine("Przywrócenie danych poprawne.");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.WriteLine("Przywrócenie danych anulowane.");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+            }
+            else
+            {
+                Console.WriteLine("Nie można przywrócić danych. Kopia zapasowa nie istnieje.");
+            }
+
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WriteLine("ENTER-->powrót do menu");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.ReadKey();
+            Console.Clear();
         }
 
         // Kopia zapasowa pliku TXT
