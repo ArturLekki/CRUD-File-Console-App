@@ -31,79 +31,117 @@
             Dictionary<string,string> questionsLoterry = new Dictionary<string,string>();
 
 
-            // Główna pętla programu (wczytuje menu, zarządza wyborami)
-            bool programRun = true;
-            do
+            try
             {
-                int wybor = RunMenu(menu);
-
-                switch (wybor)
+                // Główna pętla programu (wczytuje menu, zarządza wyborami)
+                bool programRun = true;
+                do
                 {
-                    case 0:
-                        string question = CreateQuestion();
-                        string answer = CreateAnswer(question);
-                        AddToDictionary(questionsTemporary, question, answer);
-                        break;
-                    case 1:
-                        DisplayList(questionsTemporary);
-                        break;
-                    case 2:
-                        DisplayTxtFile();
-                        break;
-                    case 3:
-                        AppendToTxtFile(questionsTemporary);
-                        break;
-                    case 4:
-                        DeleteTxtFile();
-                        break;
-                    case 5:
-                        DeleteFromTxtById();
-                        break;
-                    case 6:
-                        EditTxtFile();
-                        break;
-                    case 7:
-                        QuestionsLoterry(questionsLoterry);
-                        break;
-                    case 8:
-                        SyncTxtFile();
-                        break;
-                    case 9:
-                        backupTxtFile();
-                        break;
-                    case 10:
-                        RestoreFromBackup();
-                        break;
-                    case 11:                      
-                        if(questionsTemporary.Count != 0)
-                        {
-                            Console.ForegroundColor = ConsoleColor.DarkRed;
-                            Console.WriteLine("Masz niezapisane dane. Kolekcja tymczasowa wymaga zapisu do pliku TXT. Mimo to wyjść? y/n");
-                            Console.ForegroundColor = ConsoleColor.White;
+                    int wybor = RunMenu(menu);
 
-                            string input = Console.ReadLine();
-                            if (input == "y")
+                    switch (wybor)
+                    {
+                        case 0:
+                            string question = CreateQuestion();
+                            string answer = CreateAnswer(question);
+                            AddToDictionary(questionsTemporary, question, answer);
+                            break;
+                        case 1:
+                            DisplayList(questionsTemporary);
+                            break;
+                        case 2:
+                            DisplayTxtFile();
+                            break;
+                        case 3:
+                            AppendToTxtFile(questionsTemporary);
+                            break;
+                        case 4:
+                            DeleteTxtFile();
+                            break;
+                        case 5:
+                            DeleteFromTxtById();
+                            break;
+                        case 6:
+                            EditTxtFile();
+                            break;
+                        case 7:
+                            QuestionsLoterry(questionsLoterry);
+                            break;
+                        case 8:
+                            SyncTxtFile();
+                            break;
+                        case 9:
+                            backupTxtFile();
+                            break;
+                        case 10:
+                            RestoreFromBackup();
+                            break;
+                        case 11:
+                            if (questionsTemporary.Count != 0)
+                            {
+                                Console.ForegroundColor = ConsoleColor.DarkRed;
+                                Console.WriteLine("Masz niezapisane dane. Kolekcja tymczasowa wymaga zapisu do pliku TXT. Mimo to wyjść? y/n");
+                                Console.ForegroundColor = ConsoleColor.White;
+
+                                string input = Console.ReadLine();
+                                if (input == "y")
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Magenta;
+                                    Console.WriteLine("Niezapisane dane zostają utracone. Zamykam program.");
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    programRun = false;
+                                    Environment.Exit(0);
+                                }
+                                else Console.Clear();
+                            }
+                            else
                             {
                                 Console.ForegroundColor = ConsoleColor.Magenta;
-                                Console.WriteLine("Niezapisane dane zostają utracone. Zamykam program.");
+                                Console.WriteLine("Brak zmian do zapisu. Zamykam program.");
                                 Console.ForegroundColor = ConsoleColor.White;
                                 programRun = false;
                                 Environment.Exit(0);
                             }
-                            else Console.Clear();
-                        }
-                        else
-                        {
-                            Console.ForegroundColor = ConsoleColor.Magenta;
-                            Console.WriteLine("Brak zmian do zapisu. Zamykam program.");
-                            Console.ForegroundColor = ConsoleColor.White;
-                            programRun = false;
-                            Environment.Exit(0);
-                        }
-                        break;
+                            break;
+                    }
                 }
+                while (programRun == true);
             }
-            while(programRun == true);
+            catch(Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.WriteLine("Wystąpił nieoczekiwany błąd.");
+                Console.ForegroundColor = ConsoleColor.White;
+
+                LogToFile(ex);
+
+#if DEBUG
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("---");
+                Console.WriteLine("Źródło wyjątku: " + ex.Source);
+                Console.ReadKey();
+#endif
+            }
+            finally
+            {
+                Environment.Exit(0);
+            }
+        }
+
+        // LOG
+        static void LogToFile(Exception ex)
+        {
+            string logFile = "ErrorLog.txt";
+            StreamWriter sw = new StreamWriter(logFile, true);
+            sw.WriteLine(ex.Message);
+            sw.Close();
+            sw.Dispose();
+
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.WriteLine($"Zapisano wystąpienie błędu w pliku {logFile}");
+            Console.ForegroundColor = ConsoleColor.White;
+
+            Console.ReadKey();
         }
 
         // Przywróć dane z kopii zapasowej
