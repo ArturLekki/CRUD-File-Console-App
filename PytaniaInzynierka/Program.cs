@@ -781,6 +781,20 @@
             }
             else
             {
+                List<string> categories = new List<string>
+                {
+                    "Wszystkie pytania",
+                    "Pytania inżynierskie",
+                    "PHP-framework MVC"
+                };
+
+                int input = RunMenu(categories);
+
+
+                Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                Console.WriteLine($"Wczytuję pytania z pliku z kategorii: {input}: {categories[input]}");
+                Console.ForegroundColor = ConsoleColor.White;
+
                 StreamReader sr = new StreamReader("questions.txt");
 
                 string line = "";
@@ -791,7 +805,26 @@
                 {
                     line = sr.ReadLine();
                     lineSplited = line.Split(';');
-                    questionsLoterry.Add(lineSplited[0], lineSplited[1]);
+
+                    if(input == 0)
+                    {
+                        questionsLoterry.Add(lineSplited[0], lineSplited[1]);
+                    }
+                    else if(input == 1)
+                    {
+                        if (lineSplited[0].StartsWith("INŻ:"))
+                        {
+                            questionsLoterry.Add(lineSplited[0], lineSplited[1]);
+                        }
+                    }
+                    else if(input == 2)
+                    {
+                        if(lineSplited[0].StartsWith("PHP:"))
+                        {
+                            questionsLoterry.Add(lineSplited[0], lineSplited[1]);
+                        }
+                    }
+                    
                     countLines++;
                 }
                 while (!sr.EndOfStream);
@@ -799,13 +832,11 @@
                 sr.Close();
                 sr.Dispose();
 
-                Console.WriteLine("Ilość pytań do losowania: " + questionsLoterry.Count);
+                Console.WriteLine($"Ilość pytań do losowania: {questionsLoterry.Count} z kategorii: {categories[input]}");
 
                 Console.WriteLine("ENTER --> rozpocznij losowanie");
                 Console.ReadKey();
 
-                // Do while
-                //int questionsCount = questionsLoterry.Count;
                 do
                 {
                     Random random = new Random();
@@ -926,7 +957,11 @@
 
             do
             {
-                Console.WriteLine("Podaj treść pytania:");
+                Console.Write("Podaj treść pytania wraz z nazwą kategorii ");
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.WriteLine("(np: PHP:, INŻ:)");
+                Console.ForegroundColor = ConsoleColor.White;
+
                 question = Console.ReadLine();
             }
             while (question == null || question == "");
