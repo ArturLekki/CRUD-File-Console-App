@@ -30,6 +30,13 @@
             // Tworzenie słownika z pytaniami do losowania
             Dictionary<string,string> questionsLoterry = new Dictionary<string,string>();
 
+            // Lista kategorii pytań  = wyciagnalem to tutaj teraz dla dodawania nowego pytania jakos to zainkludować
+            List<string> categories = new List<string>
+            {
+                "Wszystkie pytania",
+                "Pytania inżynierskie",
+                "PHP-framework MVC"
+            };
 
             try
             {
@@ -42,7 +49,7 @@
                     switch (wybor)
                     {
                         case 0:
-                            string question = CreateQuestion();
+                            string question = CreateQuestion(categories);
                             string answer = CreateAnswer(question);
                             AddToDictionary(questionsTemporary, question, answer);
                             break;
@@ -65,7 +72,7 @@
                             EditTxtFile();
                             break;
                         case 7:
-                            QuestionsLoterry(questionsLoterry);
+                            QuestionsLoterry(questionsLoterry, categories);
                             break;
                         case 8:
                             SyncTxtFile();
@@ -771,7 +778,7 @@
         }
 
         // Losowanie pytań
-        static void QuestionsLoterry(Dictionary<string, string> questionsLoterry)
+        static void QuestionsLoterry(Dictionary<string, string> questionsLoterry, List<string> categories)
         {
             string path = "questions.txt";
 
@@ -781,15 +788,7 @@
             }
             else
             {
-                List<string> categories = new List<string>
-                {
-                    "Wszystkie pytania",
-                    "Pytania inżynierskie",
-                    "PHP-framework MVC"
-                };
-
                 int input = RunMenu(categories);
-
 
                 Console.ForegroundColor = ConsoleColor.DarkMagenta;
                 Console.WriteLine($"Wczytuję pytania z pliku z kategorii: {input}: {categories[input]}");
@@ -951,18 +950,38 @@
         }
 
         // Stwórz pytanie
-        static string CreateQuestion()
+        static string CreateQuestion(List<string> category)
         {
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.WriteLine("Wybierz dla jakiej kategorii stworzyć pytanie. ENTER-->kontynuuj");
+            Console.ForegroundColor = ConsoleColor.White;
+
+            Console.ReadKey();
+            Console.Clear();
+
+            int categoryChoice = RunMenu(category);
+
             string question = "";
 
             do
             {
-                Console.Write("Podaj treść pytania wraz z nazwą kategorii ");
                 Console.ForegroundColor = ConsoleColor.Magenta;
-                Console.WriteLine("(np: PHP:, INŻ:)");
+                Console.Write($"Podaj treść pytania dla kategorii {category[categoryChoice]}: ");
                 Console.ForegroundColor = ConsoleColor.White;
 
-                question = Console.ReadLine();
+                if (categoryChoice == 0)
+                {
+                    question = Console.ReadLine();
+                }
+                else if(categoryChoice == 1)
+                {
+                    question = "INŻ: " + Console.ReadLine();
+                }
+                else if(categoryChoice == 2)
+                {
+                    question = "PHP: " + Console.ReadLine();
+                }
+                
             }
             while (question == null || question == "");
 
