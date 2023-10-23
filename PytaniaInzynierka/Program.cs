@@ -34,8 +34,8 @@
             List<string> categories = new List<string>
             {
                 "Wszystkie pytania",
-                "Pytania inżynierskie",
-                "PHP-framework MVC"
+                "Pytania inżynierskie cz.1",
+                "Pytania inżynierskie cz.2"
             };
 
             try
@@ -818,7 +818,7 @@
                     }
                     else if(input == 2)
                     {
-                        if(lineSplited[0].StartsWith("PHP:"))
+                        if(lineSplited[0].StartsWith("INŻ-2:"))
                         {
                             questionsLoterry.Add(lineSplited[0], lineSplited[1]);
                         }
@@ -979,7 +979,7 @@
                 }
                 else if(categoryChoice == 2)
                 {
-                    question = "PHP: " + Console.ReadLine();
+                    question = "INŻ-2: " + Console.ReadLine();
                 }
                 
             }
