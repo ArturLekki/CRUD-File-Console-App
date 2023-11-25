@@ -35,7 +35,8 @@
             {
                 "Wszystkie pytania",
                 "Pytania inżynierskie cz.1",
-                "Pytania inżynierskie cz.2"
+                "Pytania inżynierskie cz.2",
+                "Pytania inżynierskie cz.3"
             };
 
             try
@@ -823,7 +824,14 @@
                             questionsLoterry.Add(lineSplited[0], lineSplited[1]);
                         }
                     }
-                    
+                    else if (input == 3)
+                    {
+                        if (lineSplited[0].StartsWith("INŻ-3:"))
+                        {
+                            questionsLoterry.Add(lineSplited[0], lineSplited[1]);
+                        }
+                    }
+
                     countLines++;
                 }
                 while (!sr.EndOfStream);
@@ -981,7 +989,11 @@
                 {
                     question = "INŻ-2: " + Console.ReadLine();
                 }
-                
+                else if (categoryChoice == 3)
+                {
+                    question = "INŻ-3: " + Console.ReadLine();
+                }
+
             }
             while (question == null || question == "");
 
