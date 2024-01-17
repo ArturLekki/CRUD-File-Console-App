@@ -30,13 +30,14 @@
             // Tworzenie słownika z pytaniami do losowania
             Dictionary<string,string> questionsLoterry = new Dictionary<string,string>();
 
-            // Lista kategorii pytań  = wyciagnalem to tutaj teraz dla dodawania nowego pytania jakos to zainkludować
+            // Lista kategorii pytań  ***DLA DODAWANIA NOWEJ KATEGORII EDYCJA TUTAJ**
             List<string> categories = new List<string>
             {
                 "Wszystkie pytania",
                 "Pytania inżynierskie cz.1",
                 "Pytania inżynierskie cz.2",
-                "Pytania inżynierskie cz.3"
+                "Pytania inżynierskie cz.3",
+                "Pytania inżynierskie cz.4"
             };
 
             try
@@ -778,7 +779,7 @@
             Console.Clear();
         }
 
-        // Losowanie pytań
+        // Losowanie pytań ***DLA DODAWANIA NOWEJ KATEGORII EDYCJA TUTAJ**
         static void QuestionsLoterry(Dictionary<string, string> questionsLoterry, List<string> categories)
         {
             string path = "questions.txt";
@@ -827,6 +828,13 @@
                     else if (input == 3)
                     {
                         if (lineSplited[0].StartsWith("INŻ-3:"))
+                        {
+                            questionsLoterry.Add(lineSplited[0], lineSplited[1]);
+                        }
+                    }
+                    else if (input == 4)
+                    {
+                        if (lineSplited[0].StartsWith("INŻ-4:"))
                         {
                             questionsLoterry.Add(lineSplited[0], lineSplited[1]);
                         }
@@ -902,7 +910,8 @@
         static void ConsoleSettings()
         {
             var version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version;
-            Console.Title = "FileCrudServices" + $" [v: {version.Major}.{version.Minor}.{version.Build}.{version.Revision}]";
+            //Console.Title = "FileCrudServices" + $" [v: {version.Major}.{version.Minor}.{version.Build}.{version.Revision}]";
+            Console.Title = "FileCrudServices" + $" [v: {version.Major}.{version.Minor}.{version.Build}]";
         }
 
         // Menu
@@ -957,7 +966,7 @@
             return menuItemChoosen;
         }
 
-        // Stwórz pytanie
+        // Stwórz pytanie ***DLA DODAWANIA NOWEJ KATEGORII EDYCJA TUTAJ**
         static string CreateQuestion(List<string> category)
         {
             Console.ForegroundColor = ConsoleColor.Magenta;
@@ -992,6 +1001,10 @@
                 else if (categoryChoice == 3)
                 {
                     question = "INŻ-3: " + Console.ReadLine();
+                }
+                else if (categoryChoice == 4)
+                {
+                    question = "INŻ-4: " + Console.ReadLine();
                 }
 
             }
