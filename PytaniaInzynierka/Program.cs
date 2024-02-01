@@ -37,7 +37,9 @@
                 "Pytania inżynierskie cz.1",
                 "Pytania inżynierskie cz.2",
                 "Pytania inżynierskie cz.3",
-                "Pytania inżynierskie cz.4"
+                "Pytania inżynierskie cz.4",
+                "Pytania inżynierskie cz.5",
+                "Pytania inżynierskie cz.6"
             };
 
             try
@@ -839,6 +841,20 @@
                             questionsLoterry.Add(lineSplited[0], lineSplited[1]);
                         }
                     }
+                    else if (input == 5)
+                    {
+                        if (lineSplited[0].StartsWith("INŻ-5:"))
+                        {
+                            questionsLoterry.Add(lineSplited[0], lineSplited[1]);
+                        }
+                    }
+                    else if (input == 6)
+                    {
+                        if (lineSplited[0].StartsWith("INŻ-6:"))
+                        {
+                            questionsLoterry.Add(lineSplited[0], lineSplited[1]);
+                        }
+                    }
 
                     countLines++;
                 }
@@ -1005,6 +1021,14 @@
                 else if (categoryChoice == 4)
                 {
                     question = "INŻ-4: " + Console.ReadLine();
+                }
+                else if (categoryChoice == 5)
+                {
+                    question = "INŻ-5: " + Console.ReadLine();
+                }
+                else if (categoryChoice == 6)
+                {
+                    question = "INŻ-6: " + Console.ReadLine();
                 }
 
             }
